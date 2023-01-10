@@ -7,7 +7,7 @@ test("normal time progression", async (t) => {
     events: [],
     state: { value: 0 },
   };
-  const s = system(givenWorld, {});
+  const s = system({});
 
   const newWorld = s.tick(1, givenWorld);
   t.match(newWorld, { time: 1, events: [], state: { value: 0 } });
@@ -20,4 +20,20 @@ test("normal time progression", async (t) => {
   );
 
   t.match(futureWorld, { time: 14, events: [], state: { value: 0 } });
+});
+
+test("normal time progression with simple event", async (t) => {
+  const givenWorld = {
+    time: 0,
+    events: [
+      { topic: "", props: "", value: 2 },
+      { topic: "", props: "", value: 2 },
+      { topic: "", props: "", value: 1 },
+    ],
+    state: { value: 0 },
+  };
+  const s = system({});
+
+  const newWorld = s.tick(1, givenWorld);
+  t.match(newWorld, { time: 1, events: [], state: { value: 5 } });
 });

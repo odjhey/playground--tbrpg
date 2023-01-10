@@ -1,3 +1,5 @@
+import produce from "immer";
+
 type TTime = number;
 type TState<T> = {
   value: T;
@@ -11,22 +13,37 @@ export type TEvents<T> = {
   value: T;
 }[];
 
-type TWorld<T, E = unknown> = {
+export type TWorld<T, E> = {
   time: TTime;
   state: TState<T>;
   events: TEvents<E>;
 };
 
-type TSystem<T> = {
-  tick: (tick: TTime, world: TWorld<T>) => TWorld<T>;
+type TSystem<State, Event> = {
+  tick: (tick: TTime, world: TWorld<State, Event>) => TWorld<State, Event>;
 };
 
 type TDeps = {};
 
-export function system<State>(w: TWorld<State>, deps: TDeps): TSystem<State> {
+export function system(deps: TDeps): TSystem<number, number> {
   return {
     tick: (t, w) => {
-      return { ...w, time: w.time + t };
+      const nw = produce(w, (d) => {
+        // consume events
+
+        w.events.map((e) => {
+          if (
+            typeof e.value === "number" &&
+            typeof w.state.value === "number"
+          ) {
+            w.state.value = w.state.value + e.value;
+          }
+        });
+
+        d.time = d.time + t;
+      });
+
+      return nw;
     },
   };
 }
