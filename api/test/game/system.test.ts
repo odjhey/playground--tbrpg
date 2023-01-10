@@ -7,7 +7,7 @@ test("normal time progression", async (t) => {
     events: [],
     state: { value: 0 },
   };
-  const s = system({});
+  const s = system({ consumers: {} });
 
   const newWorld = s.tick(1, givenWorld);
   t.match(newWorld, { time: 1, events: [], state: { value: 0 } });
@@ -26,14 +26,33 @@ test("normal time progression with simple event", async (t) => {
   const givenWorld = {
     time: 0,
     events: [
-      { topic: "", props: "", value: 2 },
-      { topic: "", props: "", value: 2 },
-      { topic: "", props: "", value: 1 },
+      { topic: "/base/value/add/1", props: "", value: 2 },
+      { topic: "/base/value/add/1", props: "", value: 2 },
+      { topic: "/base/value/add/1", props: "", value: 1 },
     ],
     state: { value: 0 },
   };
-  const s = system({});
+  const s = system<number, number>({
+    consumers: {
+      "/base/value/add/1": (event, prevState) => {
+        return { value: event.value + prevState.value };
+      },
+    },
+  });
 
   const newWorld = s.tick(1, givenWorld);
   t.match(newWorld, { time: 1, events: [], state: { value: 5 } });
 });
+
+// test("simple event consumer", async (t) => {
+//   const givenWorld = {
+//     time: 0,
+//     events: [{ topic: "/base/atk/exec/1", props: "l/char1/move1", value: 10 }],
+//     state: { value: 0 },
+//   };
+//   const s = system({});
+//
+//   const newWorld = s.tick(1, givenWorld);
+//   t.match(newWorld, { time: 1, events: [], state: { value: 5 } });
+// });
+//
