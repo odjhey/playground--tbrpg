@@ -1,8 +1,8 @@
 import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import { FastifyInstance } from "fastify";
 
-import { appRouter } from "./router";
-import { createContext } from "./router/context";
+import { appRouter } from "./appRouter";
+import { createContext } from "./context";
 
 export default async (fastify: FastifyInstance) => {
   const prefix = "/trpc";
