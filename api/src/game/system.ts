@@ -28,6 +28,14 @@ type TDeps<State, E> = {
   // TODO: make event type a union of literals
   // TODO: why do we need Draft here? `prevState: Draft<State>`
   consumers: Record<string, (e: TEvent<E>, prevState: Draft<State>) => State>;
+
+  // Note: Ala terminating link ba? or like onEnd lang?
+  // enders: [(state: Draft<State>) => State];
+
+  // Note: may use an observable here, ala computed values/views
+  // apply result of the tick to the model then views should follow
+  // TODO: try to implem above tom
+  onTickEnd: (state: Draft<State>) => State;
 };
 
 export function system<StateV, E>(
@@ -47,6 +55,10 @@ export function system<StateV, E>(
         });
 
         d.time = d.time + t;
+
+        if (typeof deps.onTickEnd === "function") {
+          d.state = castDraft(deps.onTickEnd(d.state));
+        }
       });
 
       return nw;
