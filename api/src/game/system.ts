@@ -2,12 +2,19 @@ type TTime = number;
 type TState<T> = {
   value: T;
 };
-type TEvents<T> = { name: string; props: T }[];
 
-type TWorld<T> = {
+export type TEvents<T> = {
+  // Domain/Object-type/Verb/Version
+  topic: string;
+  // Locality/SourceId/ObjectId
+  props: string;
+  value: T;
+}[];
+
+type TWorld<T, E = unknown> = {
   time: TTime;
   state: TState<T>;
-  events: TEvents<unknown>;
+  events: TEvents<E>;
 };
 
 type TSystem<T> = {
