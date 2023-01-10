@@ -1,0 +1,11 @@
+{
+  "name": "tbrpg",
+  "version": "0.0.1",
+  "author": "Odelon Jhey Pacalso <odjhey@gmail.com>",
+  "private": true,
+  "workspaces": [
+    "web",
+    "api",
+    "packages/*"
+  ]
+}
