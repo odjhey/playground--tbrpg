@@ -19,7 +19,6 @@
   "license": "ISC",
   "dependencies": {
     "@fastify/autoload": "^5.0.0",
-    "@fastify/cors": "^8.2.0",
     "@fastify/sensible": "^5.0.0",
     "@fastify/websocket": "^7.1.2",
     "@trpc/server": "^10.8.1",
