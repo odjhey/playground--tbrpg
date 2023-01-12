@@ -9,3 +9,13 @@ npx fastify-cli generate api --lang=ts # api side
 ## todo
 
 - fix test on both sides
+
+## core concepts
+
+### components
+
+components or component groups
+
+- have own state
+- have signal handlers (hmm signal & event?)
+- member of a system
