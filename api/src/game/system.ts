@@ -1,3 +1,6 @@
+// TODO: add concept of components and component groups, where system receives signals, then propagates to components,
+//       see OTP/donut-party for inspirations
+
 import produce, { castDraft, Draft } from "immer";
 
 type TTime = number;
@@ -42,6 +45,7 @@ export function system<StateV, E>(
   deps: TDeps<TState<StateV>, E>
 ): TSystem<StateV, E> {
   return {
+    // TODO: move to using signals
     tick: (t, w) => {
       const nw = produce(w, (d) => {
         // consume events
