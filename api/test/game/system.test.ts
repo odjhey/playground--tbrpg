@@ -1,131 +1,64 @@
 import { test } from "tap";
+import { component } from "../../src/game/components";
 import { system } from "../../src/game/system";
 
-const ident = <T>(v: T): T => v;
+test("basic system of components", async (t) => {
+  const events = [
+    {
+      event: "atk",
+      source: "1",
+      target: "chara2",
+      props: { value: 3 },
+    } as const,
+    {
+      event: "atk",
+      source: "2",
+      target: "chara1",
+      props: { value: 8 },
+    } as const,
+  ];
 
-test("normal time progression", async (t) => {
-  const givenWorld = {
-    time: 0,
-    events: [],
-    state: { value: 0 },
+  const makeChar = (id: string, stats: { hp: number }) => {
+    return component({
+      id,
+      effects: {},
+      initState: stats,
+      signals: {
+        damage: (amt: number, s) => {
+          return { ...s, hp: s.hp - amt };
+        },
+      },
+    });
   };
-  const s = system({ consumers: {}, onTickEnd: ident });
 
-  const newWorld = s.tick(1, givenWorld);
-  t.match(newWorld, { time: 1, events: [], state: { value: 0 } });
+  const chara1 = makeChar("chara1", { hp: 90 });
+  const chara2 = makeChar("chara2", { hp: 82 });
 
-  const futureWorld = Array.from({ length: 13 }, (_, i) => i).reduce(
-    (accu, item) => {
-      return s.tick(1, accu);
+  const components = {
+    chara1,
+    chara2,
+  };
+  const wy = system({
+    components,
+    eventsDefinition: {
+      atk: {
+        toSignals: (e: {
+          props: { damage: number; target: keyof typeof components };
+        }) => {
+          return [
+            {
+              signal: ["damage" as const, e.props.damage],
+              selector: () => [e.props.target],
+            },
+          ];
+        },
+      },
     },
-    newWorld
+  });
+
+  events.forEach((e) =>
+    wy.send(e, { props: { damage: e.props.value, target: e.target } })
   );
 
-  t.match(futureWorld, { time: 14, events: [], state: { value: 0 } });
+  t.match({ chara1: { hp: 82 }, chara2: { hp: 79 } }, wy.render());
 });
-
-test("normal time progression with simple event", async (t) => {
-  const givenWorld = {
-    time: 0,
-    events: [
-      { topic: "/base/value/add/1", props: "", value: 2 },
-      { topic: "/base/value/add/1", props: "", value: 2 },
-      { topic: "/base/value/add/1", props: "", value: 1 },
-    ],
-    state: { value: 0 },
-  };
-  const s = system<number, number>({
-    consumers: {
-      "/base/value/add/1": (event, prevState) => {
-        return { value: event.value + prevState.value };
-      },
-    },
-    onTickEnd: ident,
-  });
-
-  const newWorld = s.tick(1, givenWorld);
-  t.match(newWorld, { time: 1, events: [], state: { value: 5 } });
-});
-
-test("simple event consumer", async (t) => {
-  const givenWorld = {
-    time: 0,
-    events: [
-      { topic: "/base/atk/exec/1", props: "l/char1/move1", value: { atk: 14 } },
-    ],
-    state: { value: { hp: 22 } },
-  };
-  const s = system<{ hp: number }, { atk: number }>({
-    consumers: {
-      "/base/atk/exec/1": (e, p) => {
-        return {
-          value: {
-            hp: p.value.hp - e.value.atk,
-          },
-        };
-      },
-    },
-    onTickEnd: ident,
-  });
-
-  const newWorld = s.tick(1, givenWorld);
-  t.match(newWorld, { time: 1, events: [], state: { value: { hp: 8 } } });
-});
-
-test("simple on end checker", async (t) => {
-  const givenWorld = {
-    time: 0,
-    events: [
-      { topic: "/base/atk/exec/1", props: "l/char1/move1", value: { atk: 14 } },
-    ],
-    state: { value: { hp: 22, systemState: "green" as const } },
-  };
-  const s = system<
-    { hp: number; systemState: "green" | "red" },
-    { atk: number }
-  >({
-    consumers: {
-      "/base/atk/exec/1": (e, p) => {
-        p.value.hp = p.value.hp - e.value.atk;
-        return p;
-      },
-    },
-    onTickEnd: (state) => {
-      state.value.systemState =
-        state.value.hp < 0 ? "red" : state.value.systemState;
-      return state;
-    },
-  });
-
-  const newWorld = s.tick(1, givenWorld);
-  t.match(newWorld, { time: 1, events: [], state: { value: { hp: 8 } } });
-});
-
-// test("basic system of components", (t) => {
-//   const events = [
-//     { event: "atk", source: "1", target: "2", props: { value: 10 } },
-//     { event: "atk", source: "2", target: "1", props: { value: 8 } },
-//   ];
-//
-//   const wx = {
-//     components: {
-//       "1": {
-//         hp: 89,
-//       },
-//       "2": {
-//         hp: 70,
-//       },
-//     },
-//
-//     handlers: {
-//       atk: (e) => {
-//         console.log("exec", e);
-//         e.target.hp.receive("-", e.props.value);
-//       },
-//     },
-//
-//     send: (event) => ({}),
-//   };
-//
-//   events.reduce((e) => wx.send(e), {});
-// });
