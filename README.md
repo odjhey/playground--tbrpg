@@ -17,5 +17,8 @@ npx fastify-cli generate api --lang=ts # api side
 components or component groups
 
 - have own state
-- have signal handlers (hmm signal & event?)
-- member of a system
+- have signal handlers
+
+### system
+- have components
+- sends signals to components
