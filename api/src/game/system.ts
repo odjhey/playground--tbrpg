@@ -6,7 +6,7 @@ export function system<
     string,
     {
       toSignals: (e: any) => {
-        signal: Parameters<Components[keyof Components]["receive"]>;
+        signal: Readonly<Parameters<Components[keyof Components]["receive"]>>;
         selector: () => (keyof Components)[];
       }[];
     }

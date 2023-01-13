@@ -47,7 +47,7 @@ test("basic system of components", async (t) => {
         }) => {
           return [
             {
-              signal: ["damage" as const, e.props.damage],
+              signal: ["damage" as const, e.props.damage] as const,
               selector: () => [e.props.target],
             },
           ];
