@@ -100,3 +100,32 @@ test("simple on end checker", async (t) => {
   const newWorld = s.tick(1, givenWorld);
   t.match(newWorld, { time: 1, events: [], state: { value: { hp: 8 } } });
 });
+
+// test("basic system of components", (t) => {
+//   const events = [
+//     { event: "atk", source: "1", target: "2", props: { value: 10 } },
+//     { event: "atk", source: "2", target: "1", props: { value: 8 } },
+//   ];
+//
+//   const wx = {
+//     components: {
+//       "1": {
+//         hp: 89,
+//       },
+//       "2": {
+//         hp: 70,
+//       },
+//     },
+//
+//     handlers: {
+//       atk: (e) => {
+//         console.log("exec", e);
+//         e.target.hp.receive("-", e.props.value);
+//       },
+//     },
+//
+//     send: (event) => ({}),
+//   };
+//
+//   events.reduce((e) => wx.send(e), {});
+// });

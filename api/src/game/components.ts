@@ -33,3 +33,5 @@ export const component = <
     state: () => state,
   };
 };
+
+export type TComponentInstance = ReturnType<typeof component>;
