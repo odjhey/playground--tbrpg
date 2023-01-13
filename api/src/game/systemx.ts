@@ -5,9 +5,10 @@ export function systemx<
   EventsDefinition extends Record<
     string,
     {
-      toSignals: (
-        e: any
-      ) => Parameters<Components[keyof Components]["receive"]>[];
+      toSignals: (e: any) => {
+        signal: Parameters<Components[keyof Components]["receive"]>;
+        selector: () => (keyof Components)[];
+      }[];
     }
   >
 >(def: { components: Components; eventsDefinition: EventsDefinition }) {
@@ -16,13 +17,13 @@ export function systemx<
       event: { event: keyof EventsDefinition },
       p: Parameters<EventsDefinition[keyof EventsDefinition]["toSignals"]>[0]
     ) => {
-      const keys = Object.keys(def.components);
-      keys.forEach((k) => {
-        const signals = def.eventsDefinition[event.event].toSignals(p);
-
-        // TODO: need ordering?
-        signals.forEach((s) => def.components[k].receive(s[0], s[1]));
-      }, {});
+      const signals = def.eventsDefinition[event.event].toSignals(p);
+      // TODO: need ordering?
+      signals.forEach((s) => {
+        s.selector().forEach((c) =>
+          def.components[c].receive(s.signal[0], s.signal[1])
+        );
+      });
     },
     render: () => {
       const ck = Object.keys(def.components);
