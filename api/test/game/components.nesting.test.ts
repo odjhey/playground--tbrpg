@@ -32,3 +32,33 @@ test("simple component nesting", async (t) => {
   chara.receive("cleanse", null);
   t.match(flatten(chara.state()), { mana: "6", statuses: [] });
 });
+
+test("simple component nesting - array", async (t) => {
+  const makeStat = (statName: string, v: { value: number }) => {
+    return component({
+      id: statName,
+      initState: v,
+      effects: {},
+      signals: {
+        "+": (a: number, s) => {
+          return { ...s, value: s.value + a };
+        },
+      },
+    });
+  };
+
+  const chara = component({
+    id: "chara",
+    initState: {
+      name: "john",
+      stats: [makeStat("hp", { value: 928 }), makeStat("mp", { value: 129 })],
+    },
+    effects: {},
+    signals: {},
+  });
+
+  t.match(flatten(chara.state()), {
+    name: "john",
+    stats: [{ value: 928 }, { value: 129 }],
+  });
+});
