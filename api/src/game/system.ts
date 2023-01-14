@@ -29,7 +29,6 @@ export function system<
     render: () => {
       const ck = Object.keys(def.components);
       const states = ck.map((k) => {
-        console.log("---sate", k, def.components[k].state());
         return [k, flatten(def.components[k].state())];
       });
       return Object.fromEntries(states);

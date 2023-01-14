@@ -1,5 +1,6 @@
 import { trpc } from "../../utils/trpc";
 import ParticipantsForm from "../../components/ParticipantsForm";
+import AtkForm from "../../components/AtkForm";
 import ParticipantsList from "../../components/ParticipantsList";
 
 export const ParticipantsPage = () => {
@@ -12,8 +13,13 @@ export const ParticipantsPage = () => {
           participants.refetch();
         }}
       ></ParticipantsForm>
+      <AtkForm
+        onSuccess={() => {
+          participants.refetch();
+        }}
+      ></AtkForm>
       <ParticipantsList
-        participants={participants.data?.map((d) => d.name) || ([] as string[])}
+        participants={(participants.data as any) || []}
       ></ParticipantsList>
     </div>
   );

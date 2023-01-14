@@ -12,6 +12,7 @@ const makeStats = (id: string, values: { hp: number; atk: number }) => {
     signals: {
       "-hp": (amt: number, s) =>
         produce(s, (d) => {
+          console.log("---hp", d, s);
           d.hp - amt;
         }),
     },
@@ -35,6 +36,15 @@ const w = system({
             });
           });
         },
+        atk: (p: { srcIdx: number; targetIdx: number; dmg: number }, state) => {
+          console.log("-----event", p, state);
+          // TODO: add validation that the `p` values is valid, like not outofbounds etc
+          state.parts[p.srcIdx].stats.receive("-hp", p.dmg);
+          return state;
+          // return produce(state, (draft) => {
+          //   draft.parts[p.srcIdx].stats.receive("-hp", p.dmg);
+          // });
+        },
       },
     }),
   },
@@ -49,26 +59,39 @@ const w = system({
         ];
       },
     },
+    atk: {
+      toSignals: (e: { props: { name: string } }) => {
+        return [
+          {
+            signal: [
+              "atk",
+              { dmg: 2, srcIdx: 0, targetIdx: 1, name: e.props.name },
+            ],
+            selector: () => ["parts"],
+          },
+        ];
+      },
+    },
   },
 });
 
 export const participantsRouter = router({
   list: publicProcedure.query(() => {
     // TODO: have to fix so that render is typed
-    return w.render().parts.parts as { name: string }[];
+    return w.render().parts.parts as { name: string; stats: any }[];
   }),
 
   act: publicProcedure
     .input(
       z.object({
-        name: z.string().nullish(),
+        name: z.enum(["atk"]),
         target: z.string().nullish(),
         source: z.string().nullish().nullish(),
       })
     )
     .mutation(({ input }) => {
       if (input?.name) {
-        w.send({ event: "add" }, { props: { name: input.name } });
+        w.send({ event: "atk" }, { props: { name: input.name } });
       }
 
       return "sent";
