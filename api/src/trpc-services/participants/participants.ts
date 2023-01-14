@@ -37,7 +37,7 @@ const w = system({
         },
         atk: (p: { srcIdx: number; targetIdx: number; dmg: number }, state) => {
           // TODO: add validation that the `p` values is valid, like not outofbounds etc
-          state.parts[p.srcIdx].stats.receive("-hp", p.dmg);
+          state.parts[p.targetIdx].stats.receive("-hp", p.dmg);
           return state;
           // return produce(state, (draft) => {
           //   draft.parts[p.srcIdx].stats.receive("-hp", p.dmg);
@@ -58,12 +58,17 @@ const w = system({
       },
     },
     atk: {
-      toSignals: (e: { props: { name: string } }) => {
+      toSignals: (e: { props: { name: string; target: number } }) => {
         return [
           {
             signal: [
               "atk",
-              { dmg: 2, srcIdx: 0, targetIdx: 1, name: e.props.name },
+              {
+                dmg: 2,
+                srcIdx: 0,
+                targetIdx: e.props.target,
+                name: e.props.name,
+              },
             ],
             selector: () => ["parts"],
           },
@@ -83,13 +88,16 @@ export const participantsRouter = router({
     .input(
       z.object({
         name: z.enum(["atk"]),
-        target: z.string().nullish(),
+        target: z.number(),
         source: z.string().nullish().nullish(),
       })
     )
     .mutation(({ input }) => {
       if (input?.name) {
-        w.send({ event: "atk" }, { props: { name: input.name } });
+        w.send(
+          { event: "atk" },
+          { props: { name: input.name, target: input.target } }
+        );
       }
 
       return "sent";

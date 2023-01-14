@@ -9,12 +9,22 @@ export default ({ onSuccess }: TProps) => {
   return (
     <form
       onSubmit={formMethods.handleSubmit(async (data) => {
-        await atk.mutateAsync({ name: data.name });
+        await atk.mutateAsync({ name: data.name, target: Number(data.idx) });
         onSuccess();
       })}
     >
       <div className="flex gap-1 items-center">
         <input
+          type="number"
+          {...formMethods.register("idx", {
+            required: false,
+            value: "0",
+            min: 0,
+          })}
+          className="input input-secondary input-sm"
+        ></input>
+        <input
+          type="text"
           {...formMethods.register("name", { required: false, value: "atk" })}
           className="input input-secondary input-sm"
         ></input>
