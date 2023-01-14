@@ -3,6 +3,8 @@ import { component } from "../../game/components";
 import { system } from "../../game/system";
 import { publicProcedure, router } from "../../trpc/trpc";
 import produce from "immer";
+import * as fs from "fs";
+import * as path from "path";
 
 const makeStats = (
   id: string,
@@ -29,13 +31,26 @@ const makeStats = (
   });
 };
 
+const initState = {
+  parts: JSON.parse(
+    String(
+      fs.readFileSync(path.join(__dirname, "../../../assets/initState.json"))
+    )
+  ).parts.map((dp: { name: string; stats: any }) => {
+    return { ...dp, stats: makeStats("fromFile", dp.stats) };
+  }),
+};
+
 const w = system({
   components: {
     parts: component({
       id: "parts",
       effects: {},
       initState: {
-        parts: [] as { name: string; stats: ReturnType<typeof makeStats> }[],
+        parts: initState.parts as {
+          name: string;
+          stats: ReturnType<typeof makeStats>;
+        }[],
       },
       signals: {
         add: (p: { name: string }, state) => {
@@ -48,6 +63,7 @@ const w = system({
         },
         atk: (p: { srcIdx: number; targetIdx: number; dmg: number }, state) => {
           // TODO: add validation that the `p` values is valid, like not outofbounds etc
+          console.log("----atk", state.parts);
           state.parts[p.targetIdx].stats.receive("-hp", p.dmg);
           return state;
           // return produce(state, (draft) => {

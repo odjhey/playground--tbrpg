@@ -6,6 +6,7 @@ export const component = <
   E extends Record<string, [(s: State) => boolean, (s: State) => State]>
 >(def: {
   id: string;
+  // find a way to hydrate from a flat snapshot/initState, (flatstate)->component
   initState: State;
   effects: E;
   signals: C;
