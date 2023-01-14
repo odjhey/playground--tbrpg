@@ -1,4 +1,5 @@
 import { TComponentInstance } from "./components";
+import { flatten } from "./components.utils";
 
 export function system<
   Components extends Record<string, TComponentInstance>,
@@ -25,10 +26,12 @@ export function system<
         );
       });
     },
+
+    // TODO: move to util
     render: () => {
       const ck = Object.keys(def.components);
       const states = ck.map((k) => {
-        return [k, def.components[k].state()];
+        return [k, flatten(def.components[k].state())];
       });
       return Object.fromEntries(states);
     },

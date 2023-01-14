@@ -62,3 +62,92 @@ test("basic system of components", async (t) => {
 
   t.match({ chara1: { hp: 82 }, chara2: { hp: 79 } }, wy.render());
 });
+
+test("basic system of components - multi signal", async (t) => {
+  const events = [
+    {
+      event: "atk",
+      source: "chara1",
+      target: "chara2",
+      props: { value: 3 },
+    } as const,
+    {
+      event: "lifesteal",
+      source: "chara2",
+      target: "chara1",
+      props: { value: 8 },
+    } as const,
+  ];
+
+  const makeChar = (id: string, stats: { hp: number }) => {
+    return component({
+      id,
+      effects: {},
+      initState: stats,
+      signals: {
+        damage: (amt: number, s) => {
+          return { ...s, hp: s.hp - amt };
+        },
+        heal: (amt: number, s) => {
+          return { ...s, hp: s.hp + amt };
+        },
+      },
+    });
+  };
+
+  const chara1 = makeChar("chara1", { hp: 90 });
+  const chara2 = makeChar("chara2", { hp: 82 });
+
+  const components = {
+    chara1,
+    chara2,
+  };
+  const wy = system({
+    components,
+    eventsDefinition: {
+      atk: {
+        toSignals: (e: {
+          props: {
+            damage: number;
+            target: keyof typeof components;
+          };
+        }) => {
+          return [
+            {
+              signal: ["damage" as const, e.props.damage] as const,
+              selector: () => [e.props.target],
+            },
+          ];
+        },
+      },
+      lifesteal: {
+        toSignals: (e: {
+          props: {
+            damage: number;
+            target: keyof typeof components;
+            source: keyof typeof components;
+          };
+        }) => {
+          return [
+            {
+              signal: ["damage" as const, e.props.damage] as const,
+              selector: () => [e.props.target],
+            },
+            {
+              signal: ["heal" as const, e.props.damage] as const,
+              selector: () => [e.props.source],
+            },
+          ];
+        },
+      },
+    },
+  });
+
+  events.forEach((e) =>
+    wy.send(e, {
+      props: { damage: e.props.value, target: e.target, source: e.source },
+    })
+  );
+
+  t.match({ chara1: { hp: 82 }, chara2: { hp: 87 } }, wy.render());
+});

@@ -19,7 +19,7 @@ export const component = <
     ) => {
       state = def.signals[signal](props, state);
 
-      // TODO: effect priority and terminating effects
+      // TODO: effect priority and terminating effects,
       //       maybe a middleware pattern is apt
       state = Object.keys(def.effects).reduce((accu, k) => {
         if (def.effects[k][0](accu)) {
