@@ -1,0 +1,20 @@
+{
+    "parts": [
+        {
+            "name": "slime",
+            "stats": {
+                "atk": 1,
+                "hp": 10,
+                "isAlive": true
+            }
+        },
+        {
+            "name": "orangeballs",
+            "stats": {
+                "atk": 2,
+                "hp": 8,
+                "isAlive": true
+            }
+        }
+    ]
+}
