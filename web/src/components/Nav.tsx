@@ -17,6 +17,11 @@ export const Nav = () => {
               </NavLink>
             </li>
             <li>
+              <NavLink className="p-0 px-1" to="/parts-form">
+                Parts
+              </NavLink>
+            </li>
+            <li>
               <NavLink className="p-0 px-1" to="/about">
                 About
               </NavLink>
