@@ -26,6 +26,8 @@ export function system<
         );
       });
     },
+
+    // TODO: move to util
     render: () => {
       const ck = Object.keys(def.components);
       const states = ck.map((k) => {

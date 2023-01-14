@@ -54,11 +54,23 @@ test("simple component nesting - array", async (t) => {
       stats: [makeStat("hp", { value: 928 }), makeStat("mp", { value: 129 })],
     },
     effects: {},
-    signals: {},
+    signals: {
+      heal: (amt: number, s) => {
+        s.stats[0].receive("+", amt);
+        return s;
+      },
+    },
   });
 
   t.match(flatten(chara.state()), {
     name: "john",
     stats: [{ value: 928 }, { value: 129 }],
+  });
+
+  // modify
+  chara.receive("heal", 20);
+  t.match(flatten(chara.state()), {
+    name: "john",
+    stats: [{ value: 948 }, { value: 129 }],
   });
 });

@@ -12,8 +12,7 @@ const makeStats = (id: string, values: { hp: number; atk: number }) => {
     signals: {
       "-hp": (amt: number, s) =>
         produce(s, (d) => {
-          console.log("---hp", d, s);
-          d.hp - amt;
+          d.hp = d.hp - amt;
         }),
     },
   });
@@ -37,7 +36,6 @@ const w = system({
           });
         },
         atk: (p: { srcIdx: number; targetIdx: number; dmg: number }, state) => {
-          console.log("-----event", p, state);
           // TODO: add validation that the `p` values is valid, like not outofbounds etc
           state.parts[p.srcIdx].stats.receive("-hp", p.dmg);
           return state;
