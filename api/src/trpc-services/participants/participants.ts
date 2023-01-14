@@ -4,10 +4,21 @@ import { system } from "../../game/system";
 import { publicProcedure, router } from "../../trpc/trpc";
 import produce from "immer";
 
-const makeStats = (id: string, values: { hp: number; atk: number }) => {
+const makeStats = (
+  id: string,
+  values: { hp: number; atk: number; isAlive: boolean }
+) => {
   return component({
     id: id,
-    effects: {},
+    effects: {
+      die: [
+        (s) => s.hp < 0,
+        (s) =>
+          produce(s, (d) => {
+            d.isAlive = false;
+          }),
+      ],
+    },
     initState: values,
     signals: {
       "-hp": (amt: number, s) =>
@@ -30,7 +41,7 @@ const w = system({
         add: (p: { name: string }, state) => {
           return produce(state, (draft) => {
             draft.parts.unshift({
-              stats: makeStats("std", { atk: 2, hp: 23 }),
+              stats: makeStats("std", { atk: 2, hp: 23, isAlive: true }),
               ...p,
             });
           });
@@ -81,7 +92,11 @@ const w = system({
 export const participantsRouter = router({
   list: publicProcedure.query(() => {
     // TODO: have to fix so that render is typed
-    return w.render().parts.parts as { name: string; stats: any }[];
+    return w.render().parts.parts as {
+      name: string;
+      stats: any;
+      isAlive: boolean;
+    }[];
   }),
 
   act: publicProcedure
