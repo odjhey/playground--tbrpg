@@ -22,6 +22,11 @@ export const Nav = () => {
               </NavLink>
             </li>
             <li>
+              <NavLink className="p-0 px-1" to="/long-poll">
+                Long Poll
+              </NavLink>
+            </li>
+            <li>
               <NavLink className="p-0 px-1" to="/about">
                 About
               </NavLink>
