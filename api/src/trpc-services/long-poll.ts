@@ -52,6 +52,7 @@ export const longPollRouter = router({
             setTimeout(() => {
               if (ctr > 30) {
                 // 30seconds for now
+                // TODO: close(delete) request on failure
                 res({
                   result: `naaddaaa`,
                   values: list,
